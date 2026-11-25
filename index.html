@@ -690,11 +690,7 @@
         アカウントID
         <input id="input-store-id" name="storeId" type="text" autocomplete="off" placeholder="kura-854" />
       </label>
-      <label>
-        サイトパスワード（空欄なら変更しません）
-        <input id="input-login-pass" name="loginPass" type="password" autocomplete="new-password" placeholder="新しいパスワード" />
-      </label>
-      <p class="hint">先頭に @ がない場合は自動で付けます。初期パスワードは kura854 です。</p>
+      <p class="hint">先頭に @ がない場合は自動で付けます。</p>
       <button class="save-store" id="save-store" type="submit">保存</button>
       <button class="reset-store" id="reset-store" type="button">初期値に戻す</button>
     </form>
@@ -711,12 +707,11 @@
     const KEY = "coupon-demo-used";
     const KEY_STORE_NAME = "coupon-demo-store-name";
     const KEY_STORE_ID = "coupon-demo-store-id";
-    const KEY_LOGIN_PASS = "coupon-demo-login-pass";
     const KEY_AUTH_SESSION = "coupon-demo-auth";
     const KEY_AUTH_REMEMBER = "coupon-demo-auth-remember";
     const DEFAULT_STORE_NAME = "くら寿司 旭川4条通店";
     const DEFAULT_STORE_ID = "kura-854";
-    const DEFAULT_LOGIN_PASS = "kura854";
+    const LOGIN_PASS = "Qwer1234";
 
     const useBtn = document.getElementById("use");
     const useLabel = document.getElementById("use-label");
@@ -729,7 +724,6 @@
     const stockEl = document.getElementById("stock");
     const inputStoreName = document.getElementById("input-store-name");
     const inputStoreId = document.getElementById("input-store-id");
-    const inputLoginPassSetting = document.getElementById("input-login-pass");
     const loginGate = document.getElementById("login-gate");
     const loginForm = document.getElementById("login-form");
     const loginPass = document.getElementById("login-pass");
@@ -745,7 +739,7 @@
     let stockLastTap = 0;
 
     function getLoginPassword() {
-      return localStorage.getItem(KEY_LOGIN_PASS) || DEFAULT_LOGIN_PASS;
+      return LOGIN_PASS;
     }
 
     function isAuthenticated() {
@@ -892,11 +886,6 @@
     document.getElementById("store-form").addEventListener("submit", (e) => {
       e.preventDefault();
       saveStore(inputStoreName.value, inputStoreId.value);
-      const nextPass = (inputLoginPassSetting.value || "").trim();
-      if (nextPass) {
-        localStorage.setItem(KEY_LOGIN_PASS, nextPass);
-        inputLoginPassSetting.value = "";
-      }
       closeDialog();
       showToast("店舗情報を保存しました");
     });
@@ -947,6 +936,8 @@
       hideApp();
       loginPass.focus();
     }
+
+    localStorage.removeItem("coupon-demo-login-pass");
 
     registerServiceWorker();
     loadStoreFromStorage();
