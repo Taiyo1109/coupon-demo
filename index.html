@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>公式アカウントクーポン</title>
+  <style>
+    :root {
+      --green: #06c755;
+      --green-press: #04a846;
+      --red: #f23b4a;
+      --red-press: #d92b3a;
+      --ink: #222;
+      --muted: #8a8a8a;
+      --line: #ececec;
+      --yellow: #fff6d4;
+      --card: #fffdf6;
+      --pink: #ff7f9a;
+      --orange: #f5a623;
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+      --app: 430px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
+      background: #dedede;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      width: min(var(--app), 100%);
+      min-height: 100dvh;
+      margin: 0 auto;
+      background: #fff;
+      position: relative;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    header.bar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      height: 52px;
+      display: grid;
+      grid-template-columns: 48px 1fr 48px;
+      align-items: center;
+      background: #fff;
+      border-bottom: 1px solid #f2f2f2;
+    }
+    header.bar h1 {
+      margin: 0;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .icon-btn {
+      width: 48px;
+      height: 48px;
+      border: 0;
+      background: transparent;
+      color: #333;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+    .icon-btn:active { opacity: 0.5; }
+
+    .scroll {
+      padding: 14px 16px 132px;
+    }
+
+    .account {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      flex: none;
+      overflow: hidden;
+    }
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .account .who { flex: 1; min-width: 0; }
+    .account .name {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 0;
+    }
+    .account .name span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .verified {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      display: inline-grid;
+      place-items: center;
+      flex: none;
+    }
+    .account .id {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 1px;
+    }
+    .stock {
+      flex: none;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 11px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #fff;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .badges {
+      display: flex;
+      gap: 6px;
+      margin: 14px 0 10px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 3px;
+      padding: 3px 6px;
+      line-height: 1.2;
+    }
+    .badge.present { background: var(--green); color: #fff; }
+    .badge.once {
+      color: #e07a00;
+      border: 1px solid #f0b15a;
+      background: #fff;
+    }
+
+    h2.title {
+      margin: 0 0 12px;
+      font-size: 18px;
+      line-height: 1.45;
+      font-weight: 800;
+    }
+    .valid {
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    .valid b { font-weight: 700; margin-right: 8px; }
+
+    .promo {
+      margin: 0 -2px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .promo-figure {
+      position: relative;
+      margin: 0;
+      line-height: 0;
+    }
+    .promo-banner {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .challenge-hit {
+      position: absolute;
+      left: 7.2%;
+      right: 7.2%;
+      bottom: 15.8%;
+      height: 10.8%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 999px;
+    }
+    .challenge-hit:active { background: rgba(0, 0, 0, 0.06); }
+
+    .guide { margin-top: 18px; }
+    .guide h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .guide ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #444;
+    }
+    .guide li { padding-left: 0.9em; text-indent: -0.9em; }
+    .guide .tz {
+      margin: 10px 0 0;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .outline {
+      width: 100%;
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid #e4e4e4;
+      border-radius: 10px;
+      min-height: 48px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .outline:active { background: #fafafa; }
+    #nearby { display: none; }
+
+    .undo-used {
+      display: none;
+      width: 100%;
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid #d8d8d8;
+      border-radius: 10px;
+      min-height: 48px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      cursor: pointer;
+      scroll-margin-bottom: 96px;
+    }
+    .undo-used:active { background: #fafafa; }
+    body.is-used .undo-used { display: block; }
+
+    .use-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(var(--app), 100%);
+      z-index: 6;
+      border: 0;
+      background: var(--green);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      min-height: 56px;
+      padding-bottom: env(safe-area-inset-bottom);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .use-bar:active { background: var(--green-press); }
+    .use-bar:disabled {
+      background: #9a9a9a;
+      color: #fff;
+      cursor: default;
+    }
+
+    .dim {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+    .dim.show { opacity: 1; pointer-events: auto; }
+
+    .sheet {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translate(-50%, 110%);
+      width: min(var(--app), 100%);
+      background: #fff;
+      border-radius: 18px 18px 0 0;
+      z-index: 21;
+      padding: 18px 20px calc(22px + env(safe-area-inset-bottom));
+      transition: transform 0.28s cubic-bezier(.2,.8,.2,1);
+    }
+    .sheet.show { transform: translate(-50%, 0); }
+    .sheet .x {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      background: transparent;
+      font-size: 22px;
+      color: #888;
+      cursor: pointer;
+    }
+    .sheet h3 {
+      margin: 28px 8px 12px;
+      text-align: center;
+      font-size: 17px;
+    }
+    .sheet p {
+      margin: 0 8px 22px;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .danger {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      background: var(--red);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      min-height: 48px;
+      cursor: pointer;
+    }
+    .danger:active { background: var(--red-press); }
+    .danger:disabled {
+      background: #e6e6e6;
+      color: #bdbdbd;
+      cursor: default;
+    }
+
+    .sheet-form {
+      margin: 24px 4px 0;
+      text-align: left;
+    }
+    .sheet-form label {
+      display: block;
+      margin-bottom: 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #444;
+    }
+    .sheet-form input {
+      width: 100%;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      min-height: 44px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 15px;
+      color: #222;
+    }
+    .sheet-form input:focus {
+      outline: 2px solid rgba(6, 199, 85, 0.35);
+      border-color: #06c755;
+    }
+    .sheet-form .hint {
+      margin: -6px 0 16px;
+      font-size: 11px;
+      color: #888;
+      font-weight: 400;
+    }
+    .save-store {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      background: var(--green);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      min-height: 48px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .save-store:active { background: var(--green-press); }
+    .reset-store {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #888;
+      font-size: 13px;
+      text-decoration: underline;
+      cursor: pointer;
+      min-height: 36px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 46%;
+      transform: translate(-50%, -40%);
+      z-index: 30;
+      background: rgba(30, 30, 30, 0.88);
+      color: #fff;
+      border-radius: 12px;
+      min-width: 168px;
+      padding: 22px 18px 16px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .toast.show { opacity: 1; }
+    .toast .mark {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 8px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+    .toast p { margin: 0; font-size: 14px; font-weight: 700; line-height: 1.45; }
+
+    body.is-used .title,
+    body.is-used .valid,
+    body.is-used .account .name,
+    body.is-used .guide,
+    body.is-used .guide ul,
+    body.is-used .guide .tz {
+      color: #c8c8c8;
+    }
+    body.is-used .badge.present { background: #d5d5d5; }
+    body.is-used .badge.once { color: #c8c8c8; border-color: #e5e5e5; }
+    body.is-used .logo { opacity: 0.45; }
+    body.is-used .verified { background: #cfcfcf; }
+    body.is-used .stock { color: #c0c0c0; }
+    body.is-used .promo { display: none; }
+    body.is-used #nearby { display: flex; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sheet, .dim, .toast { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="bar">
+      <button class="icon-btn" id="back" aria-label="戻る">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5 L8 12 L15 19"/></svg>
+      </button>
+      <h1>公式アカウントクーポン</h1>
+      <button class="icon-btn" id="close" aria-label="閉じる">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>
+      </button>
+    </header>
+    <main class="scroll">
+      <div class="account">
+        <div class="logo"><img src="images/kura-logo.jpg" width="42" height="42" alt="くら寿司" /></div>
+        <div class="who">
+          <div class="name">
+            <span id="store-name">くら寿司 旭川4条通店</span>
+            <span class="verified" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 12 12"><path d="M2 6.2 L4.6 8.8 L10 3.2" fill="none" stroke="#fff" stroke-width="1.8"/></svg>
+            </span>
+          </div>
+          <div class="id" id="store-id">@kura-854</div>
+        </div>
+        <div class="stock" id="stock" title="ダブルタップで店舗名を編集">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10 h18"/></svg>
+          1枚使用可
+        </div>
+      </div>
+
+      <div class="badges">
+        <span class="badge present">プレゼント</span>
+        <span class="badge once">1回のみ使用可能</span>
+      </div>
+
+      <h2 class="title">ちいかわ 寿司皿1枚プレゼントクーポン</h2>
+      <div class="valid"><b>有効期間</b>2026/12/06 23:59まで</div>
+
+      <section class="promo" id="promo">
+        <figure class="promo-figure">
+          <img
+            class="promo-banner"
+            src="images/promo-banner.jpg"
+            width="1019"
+            height="1024"
+            alt="ちいかわ オリジナル寿司皿プレゼント！100万名様"
+          />
+          <button class="challenge-hit" id="challenge" type="button" aria-label="抽選にチャレンジ！"></button>
+        </figure>
+      </section>
+
+      <section class="guide">
+        <h3>利用ガイド</h3>
+        <ul>
+          <li>-【本クーポンの引換期間】：11/27（金）～12/6（日）まで</li>
+          <li>-【店舗の引換時間】11：00～20：00</li>
+          <li>-こちらのクーポンは当店でのみご利用可能となります。</li>
+          <li>-クーポンを使用するには、この画面をスタッフに提示してください。</li>
+          <li>-使用済みのクーポンはご利用になれません。また、お客さまの操作で誤って「使用済み」にしてしまった場合も利用できなくなります</li>
+          <li>-引換期間外のお渡しはできません。</li>
+          <li>-スクリーンショット等での画像提示では、お引換えはできません。</li>
+          <li>-引換クーポンの第三者への譲渡・換金はできません。また営利目的での抽選参加、転売は固くお断りいたします。</li>
+          <li>-初期不良の場合を除き、引き換え後の返品・交換には応じかねます。</li>
+          <li>-本キャンペーンの内容は、予告なく変更となる場合がございます。予めご了承ください。</li>
+        </ul>
+        <p class="tz">クーポンの有効期間は、UTC+09:00を基準に表示しています。</p>
+      </section>
+
+      <button class="outline" id="mine" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06c755" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10 h18"/></svg>
+        マイクーポンを見る
+      </button>
+      <button class="outline" id="nearby" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06c755" stroke-width="2"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.2"/></svg>
+        周辺のクーポンを探す
+      </button>
+      <button class="undo-used" id="undo-used" type="button">使用済みを解除する</button>
+    </main>
+
+    <button class="use-bar" id="use" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 8.2a2.2 2.2 0 0 0 0 7.6V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.2a2.2 2.2 0 0 0 0-7.6V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/><path d="M9 6.5v11" stroke-dasharray="1.5 2.2"/></svg>
+      <span id="use-label">クーポンを使用する</span>
+    </button>
+  </div>
+
+  <div class="dim" id="dim"></div>
+  <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+    <button class="x sheet-close" type="button" aria-label="閉じる">×</button>
+    <h3 id="sheet-title">クーポンを使用済みにしますか？</h3>
+    <p>この操作は取り消せません。利用ガイドをご確認の上、使用済みにしてください。</p>
+    <button class="danger" id="confirm" type="button">使用済みにする</button>
+  </section>
+
+  <section class="sheet" id="store-sheet" role="dialog" aria-modal="true" aria-labelledby="store-sheet-title" hidden>
+    <button class="x sheet-close" type="button" aria-label="閉じる">×</button>
+    <h3 id="store-sheet-title">店舗情報を編集</h3>
+    <form class="sheet-form" id="store-form">
+      <label>
+        店舗名
+        <input id="input-store-name" name="storeName" type="text" autocomplete="off" />
+      </label>
+      <label>
+        アカウントID
+        <input id="input-store-id" name="storeId" type="text" autocomplete="off" placeholder="kura-854" />
+      </label>
+      <p class="hint">先頭に @ がない場合は自動で付けます。</p>
+      <button class="save-store" id="save-store" type="submit">保存</button>
+      <button class="reset-store" id="reset-store" type="button">初期値に戻す</button>
+    </form>
+  </section>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="mark">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path d="M4 9.2 L7.4 12.6 L14 5.4" fill="none" stroke="#fff" stroke-width="2"/></svg>
+    </div>
+    <p id="toast-text">クーポンを使用しました</p>
+  </div>
+
+  <script>
+    const KEY = "coupon-demo-used";
+    const KEY_STORE_NAME = "coupon-demo-store-name";
+    const KEY_STORE_ID = "coupon-demo-store-id";
+    const DEFAULT_STORE_NAME = "くら寿司 旭川4条通店";
+    const DEFAULT_STORE_ID = "kura-854";
+
+    const useBtn = document.getElementById("use");
+    const useLabel = document.getElementById("use-label");
+    const dim = document.getElementById("dim");
+    const sheet = document.getElementById("sheet");
+    const storeSheet = document.getElementById("store-sheet");
+    const confirmBtn = document.getElementById("confirm");
+    const storeNameEl = document.getElementById("store-name");
+    const storeIdEl = document.getElementById("store-id");
+    const stockEl = document.getElementById("stock");
+    const inputStoreName = document.getElementById("input-store-name");
+    const inputStoreId = document.getElementById("input-store-id");
+    const toast = document.getElementById("toast");
+    const toastText = document.getElementById("toast-text");
+    let toastTimer = 0;
+    let busy = false;
+    let activeDialog = null;
+    let stockLastTap = 0;
+
+    function showToast(text) {
+      toastText.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 1600);
+    }
+
+    function formatStoreId(raw) {
+      const v = (raw || "").trim().replace(/^@+/, "");
+      return v ? `@${v}` : DEFAULT_STORE_ID;
+    }
+
+    function renderStore(name, id) {
+      storeNameEl.textContent = name || DEFAULT_STORE_NAME;
+      storeIdEl.textContent = formatStoreId(id);
+    }
+
+    function loadStoreFromStorage() {
+      const name = localStorage.getItem(KEY_STORE_NAME) || DEFAULT_STORE_NAME;
+      const id = localStorage.getItem(KEY_STORE_ID) || DEFAULT_STORE_ID;
+      renderStore(name, id);
+      return { name, id };
+    }
+
+    function openStoreEditor() {
+      if (busy || activeDialog) return;
+      const current = loadStoreFromStorage();
+      inputStoreName.value = current.name;
+      inputStoreId.value = current.id;
+      openDialog(storeSheet);
+    }
+
+    function saveStore(name, id) {
+      const safeName = (name || "").trim() || DEFAULT_STORE_NAME;
+      const safeId = formatStoreId(id);
+      localStorage.setItem(KEY_STORE_NAME, safeName);
+      localStorage.setItem(KEY_STORE_ID, safeId.replace(/^@/, ""));
+      renderStore(safeName, safeId);
+    }
+
+    function openDialog(dialogEl) {
+      if (busy || activeDialog) return;
+      activeDialog = dialogEl;
+      dialogEl.hidden = false;
+      requestAnimationFrame(() => {
+        dim.classList.add("show");
+        dialogEl.classList.add("show");
+      });
+    }
+
+    function closeDialog() {
+      if (!activeDialog) return;
+      dim.classList.remove("show");
+      activeDialog.classList.remove("show");
+      const closed = activeDialog;
+      activeDialog = null;
+      setTimeout(() => {
+        if (!closed.classList.contains("show")) closed.hidden = true;
+        if (closed === sheet) confirmBtn.disabled = false;
+      }, 280);
+    }
+
+    function applyUsed(persist) {
+      document.body.classList.add("is-used");
+      useBtn.disabled = true;
+      useLabel.textContent = "使用済み";
+      if (persist) localStorage.setItem(KEY, "1");
+    }
+
+    function clearUsed() {
+      document.body.classList.remove("is-used");
+      useBtn.disabled = false;
+      useLabel.textContent = "クーポンを使用する";
+      localStorage.removeItem(KEY);
+    }
+
+    useBtn.addEventListener("click", () => {
+      if (useBtn.disabled || busy) return;
+      openDialog(sheet);
+    });
+
+    document.querySelectorAll(".sheet-close").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (busy) return;
+        closeDialog();
+      });
+    });
+    dim.addEventListener("click", () => {
+      if (busy) return;
+      if (activeDialog) closeDialog();
+    });
+
+    stockEl.addEventListener("dblclick", openStoreEditor);
+    stockEl.addEventListener("touchend", (e) => {
+      const now = Date.now();
+      if (now - stockLastTap < 320) {
+        openStoreEditor();
+        e.preventDefault();
+        stockLastTap = 0;
+        return;
+      }
+      stockLastTap = now;
+    });
+
+    document.getElementById("store-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      saveStore(inputStoreName.value, inputStoreId.value);
+      closeDialog();
+      showToast("店舗情報を保存しました");
+    });
+
+    document.getElementById("reset-store").addEventListener("click", () => {
+      localStorage.removeItem(KEY_STORE_NAME);
+      localStorage.removeItem(KEY_STORE_ID);
+      inputStoreName.value = DEFAULT_STORE_NAME;
+      inputStoreId.value = DEFAULT_STORE_ID;
+      renderStore(DEFAULT_STORE_NAME, DEFAULT_STORE_ID);
+      showToast("初期値に戻しました");
+    });
+
+    confirmBtn.addEventListener("click", () => {
+      if (busy) return;
+      busy = true;
+      confirmBtn.disabled = true;
+      setTimeout(() => {
+        closeDialog();
+        applyUsed(true);
+        showToast("クーポンを使用しました");
+        busy = false;
+      }, 700);
+    });
+
+    document.getElementById("undo-used").addEventListener("click", () => {
+      if (busy) return;
+      clearUsed();
+      closeDialog();
+      showToast("使用済みを解除しました");
+    });
+
+    loadStoreFromStorage();
+    if (localStorage.getItem(KEY) === "1") applyUsed(false);
+  </script>
+</body>
+</html>
