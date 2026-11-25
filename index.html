@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>公式アカウントクーポン</title>
+  <meta name="theme-color" content="#06c755" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="クーポン" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <style>
     :root {
       --green: #06c755;
@@ -19,6 +25,7 @@
       --orange: #f5a623;
       --shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
       --app: 430px;
+      --dock-h: 56px;
     }
 
     * { box-sizing: border-box; }
@@ -70,8 +77,95 @@
     .icon-btn:active { opacity: 0.5; }
 
     .scroll {
-      padding: 14px 16px 132px;
+      padding: 14px 16px;
+      padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom) + 20px);
     }
+
+    .login-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #f4f4f4 0%, #e8e8e8 100%);
+      padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+    }
+    .login-gate[hidden] { display: none; }
+    .login-card {
+      width: min(var(--app), 100%);
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 22px 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+    .login-card h2 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 18px;
+    }
+    .login-card .lead {
+      margin: 0 0 20px;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .login-card label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #444;
+      margin-bottom: 6px;
+    }
+    .login-card input[type="password"] {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    .login-card input:focus {
+      outline: 2px solid rgba(6, 199, 85, 0.35);
+      border-color: #06c755;
+    }
+    .login-remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #555;
+    }
+    .login-submit {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      background: var(--green);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      min-height: 48px;
+      cursor: pointer;
+    }
+    .login-submit:active { background: var(--green-press); }
+    .login-err {
+      margin: 12px 0 0;
+      text-align: center;
+      color: var(--red);
+      font-size: 13px;
+      min-height: 1.2em;
+    }
+    .pwa-hint {
+      margin: 16px 0 0;
+      text-align: center;
+      font-size: 11px;
+      color: #999;
+      line-height: 1.5;
+    }
+
+    .app-root[hidden] { display: none; }
 
     .account {
       display: flex;
@@ -255,26 +349,37 @@
     .undo-used:active { background: #fafafa; }
     body.is-used .undo-used { display: block; }
 
-    .use-bar {
+    .bottom-dock {
       position: fixed;
-      left: 50%;
+      left: 0;
+      right: 0;
       bottom: 0;
-      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      background: #fff;
+      box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.06);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .bottom-dock[hidden] { display: none; }
+
+    .use-bar {
       width: min(var(--app), 100%);
-      z-index: 6;
+      flex: 1;
+      max-width: 100%;
       border: 0;
       background: var(--green);
       color: #fff;
       font-size: 16px;
       font-weight: 800;
       letter-spacing: 0.06em;
-      min-height: 56px;
-      padding-bottom: env(safe-area-inset-bottom);
+      min-height: var(--dock-h);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
     .use-bar:active { background: var(--green-press); }
     .use-bar:disabled {
@@ -455,6 +560,25 @@
   </style>
 </head>
 <body>
+  <div class="login-gate" id="login-gate">
+    <div class="login-card">
+      <h2>ログイン</h2>
+      <p class="lead">パスワードを入力してクーポン画面を開きます。</p>
+      <form id="login-form">
+        <label for="login-pass">パスワード</label>
+        <input id="login-pass" type="password" inputmode="text" autocomplete="current-password" placeholder="パスワード" />
+        <label class="login-remember">
+          <input id="login-remember" type="checkbox" />
+          ログイン状態を保持する
+        </label>
+        <button class="login-submit" type="submit">入る</button>
+      </form>
+      <p class="login-err" id="login-err" aria-live="polite"></p>
+      <p class="pwa-hint">ホーム画面に追加するとアプリのように使えます（iPhone: 共有 → ホーム画面に追加）</p>
+    </div>
+  </div>
+
+  <div class="app-root" id="app-root" hidden>
   <div class="app">
     <header class="bar">
       <button class="icon-btn" id="back" aria-label="戻る">
@@ -531,12 +655,15 @@
       </button>
       <button class="undo-used" id="undo-used" type="button">使用済みを解除する</button>
     </main>
+  </div>
+  </div>
 
+  <footer class="bottom-dock" id="bottom-dock" hidden>
     <button class="use-bar" id="use" type="button">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 8.2a2.2 2.2 0 0 0 0 7.6V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.2a2.2 2.2 0 0 0 0-7.6V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/><path d="M9 6.5v11" stroke-dasharray="1.5 2.2"/></svg>
       <span id="use-label">クーポンを使用する</span>
     </button>
-  </div>
+  </footer>
 
   <div class="dim" id="dim"></div>
   <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
@@ -558,7 +685,11 @@
         アカウントID
         <input id="input-store-id" name="storeId" type="text" autocomplete="off" placeholder="kura-854" />
       </label>
-      <p class="hint">先頭に @ がない場合は自動で付けます。</p>
+      <label>
+        サイトパスワード（空欄なら変更しません）
+        <input id="input-login-pass" name="loginPass" type="password" autocomplete="new-password" placeholder="新しいパスワード" />
+      </label>
+      <p class="hint">先頭に @ がない場合は自動で付けます。初期パスワードは kura854 です。</p>
       <button class="save-store" id="save-store" type="submit">保存</button>
       <button class="reset-store" id="reset-store" type="button">初期値に戻す</button>
     </form>
@@ -575,8 +706,12 @@
     const KEY = "coupon-demo-used";
     const KEY_STORE_NAME = "coupon-demo-store-name";
     const KEY_STORE_ID = "coupon-demo-store-id";
+    const KEY_LOGIN_PASS = "coupon-demo-login-pass";
+    const KEY_AUTH_SESSION = "coupon-demo-auth";
+    const KEY_AUTH_REMEMBER = "coupon-demo-auth-remember";
     const DEFAULT_STORE_NAME = "くら寿司 旭川4条通店";
     const DEFAULT_STORE_ID = "kura-854";
+    const DEFAULT_LOGIN_PASS = "kura854";
 
     const useBtn = document.getElementById("use");
     const useLabel = document.getElementById("use-label");
@@ -589,12 +724,59 @@
     const stockEl = document.getElementById("stock");
     const inputStoreName = document.getElementById("input-store-name");
     const inputStoreId = document.getElementById("input-store-id");
+    const inputLoginPassSetting = document.getElementById("input-login-pass");
+    const loginGate = document.getElementById("login-gate");
+    const loginForm = document.getElementById("login-form");
+    const loginPass = document.getElementById("login-pass");
+    const loginRemember = document.getElementById("login-remember");
+    const loginErr = document.getElementById("login-err");
+    const appRoot = document.getElementById("app-root");
+    const bottomDock = document.getElementById("bottom-dock");
     const toast = document.getElementById("toast");
     const toastText = document.getElementById("toast-text");
     let toastTimer = 0;
     let busy = false;
     let activeDialog = null;
     let stockLastTap = 0;
+
+    function getLoginPassword() {
+      return localStorage.getItem(KEY_LOGIN_PASS) || DEFAULT_LOGIN_PASS;
+    }
+
+    function isAuthenticated() {
+      return (
+        sessionStorage.getItem(KEY_AUTH_SESSION) === "1" ||
+        localStorage.getItem(KEY_AUTH_REMEMBER) === "1"
+      );
+    }
+
+    function showApp() {
+      loginGate.hidden = true;
+      appRoot.hidden = false;
+      bottomDock.hidden = false;
+    }
+
+    function hideApp() {
+      loginGate.hidden = false;
+      appRoot.hidden = true;
+      bottomDock.hidden = true;
+    }
+
+    function completeLogin(remember) {
+      sessionStorage.setItem(KEY_AUTH_SESSION, "1");
+      if (remember) {
+        localStorage.setItem(KEY_AUTH_REMEMBER, "1");
+      } else {
+        localStorage.removeItem(KEY_AUTH_REMEMBER);
+      }
+      showApp();
+    }
+
+    function registerServiceWorker() {
+      if (!("serviceWorker" in navigator)) return;
+      const swUrl = new URL("sw.js", window.location.href);
+      navigator.serviceWorker.register(swUrl).catch(() => {});
+    }
 
     function showToast(text) {
       toastText.textContent = text;
@@ -703,6 +885,11 @@
     document.getElementById("store-form").addEventListener("submit", (e) => {
       e.preventDefault();
       saveStore(inputStoreName.value, inputStoreId.value);
+      const nextPass = (inputLoginPassSetting.value || "").trim();
+      if (nextPass) {
+        localStorage.setItem(KEY_LOGIN_PASS, nextPass);
+        inputLoginPassSetting.value = "";
+      }
       closeDialog();
       showToast("店舗情報を保存しました");
     });
@@ -735,6 +922,26 @@
       showToast("使用済みを解除しました");
     });
 
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const value = (loginPass.value || "").trim();
+      if (value !== getLoginPassword()) {
+        loginErr.textContent = "パスワードが正しくありません";
+        loginPass.focus();
+        return;
+      }
+      loginErr.textContent = "";
+      completeLogin(loginRemember.checked);
+    });
+
+    if (isAuthenticated()) {
+      showApp();
+    } else {
+      hideApp();
+      loginPass.focus();
+    }
+
+    registerServiceWorker();
     loadStoreFromStorage();
     if (localStorage.getItem(KEY) === "1") applyUsed(false);
   </script>
