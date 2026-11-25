@@ -354,7 +354,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: 100;
+      z-index: 40;
       display: flex;
       justify-content: center;
       background: #fff;
@@ -388,11 +388,15 @@
       cursor: default;
     }
 
+    body.dialog-open .bottom-dock {
+      pointer-events: none;
+    }
+
     .dim {
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.55);
-      z-index: 20;
+      z-index: 110;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.22s ease;
@@ -407,8 +411,9 @@
       width: min(var(--app), 100%);
       background: #fff;
       border-radius: 18px 18px 0 0;
-      z-index: 21;
+      z-index: 111;
       padding: 18px 20px calc(22px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
       transition: transform 0.28s cubic-bezier(.2,.8,.2,1);
     }
     .sheet.show { transform: translate(-50%, 0); }
@@ -515,7 +520,7 @@
       left: 50%;
       top: 46%;
       transform: translate(-50%, -40%);
-      z-index: 30;
+      z-index: 120;
       background: rgba(30, 30, 30, 0.88);
       color: #fff;
       border-radius: 12px;
@@ -822,6 +827,7 @@
       if (busy || activeDialog) return;
       activeDialog = dialogEl;
       dialogEl.hidden = false;
+      document.body.classList.add("dialog-open");
       requestAnimationFrame(() => {
         dim.classList.add("show");
         dialogEl.classList.add("show");
@@ -834,6 +840,7 @@
       activeDialog.classList.remove("show");
       const closed = activeDialog;
       activeDialog = null;
+      document.body.classList.remove("dialog-open");
       setTimeout(() => {
         if (!closed.classList.contains("show")) closed.hidden = true;
         if (closed === sheet) confirmBtn.disabled = false;
