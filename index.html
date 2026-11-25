@@ -492,9 +492,61 @@
       font-size: 15px;
       color: #222;
     }
-    .sheet-form input:focus {
+    .sheet-form input:focus,
+    .sheet-form select:focus {
       outline: 2px solid rgba(6, 199, 85, 0.35);
       border-color: #06c755;
+    }
+    .sheet-form select {
+      width: 100%;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      min-height: 44px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 15px;
+      color: #222;
+      background: #fff;
+    }
+    .store-mode {
+      display: flex;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+    .store-mode label {
+      flex: 1;
+      margin: 0;
+      font-size: 0;
+    }
+    .store-mode input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .store-mode span {
+      display: block;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      min-height: 40px;
+      line-height: 38px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #666;
+      cursor: pointer;
+    }
+    .store-mode input:checked + span {
+      border-color: #06c755;
+      background: rgba(6, 199, 85, 0.12);
+      color: #059a42;
+    }
+    .store-fields[hidden] {
+      display: none;
+    }
+    .sheet-form input[readonly] {
+      background: #f5f5f5;
+      color: #555;
     }
     .sheet-form .hint {
       margin: -6px 0 16px;
@@ -695,15 +747,40 @@
     <button class="x sheet-close" type="button" aria-label="閉じる">×</button>
     <h3 id="store-sheet-title">店舗情報を編集</h3>
     <form class="sheet-form" id="store-form">
-      <label>
-        店舗名
-        <input id="input-store-name" name="storeName" type="text" autocomplete="off" />
-      </label>
-      <label>
-        アカウントID
-        <input id="input-store-id" name="storeId" type="text" autocomplete="off" placeholder="kura-854" />
-      </label>
-      <p class="hint">先頭に @ がない場合は自動で付けます。</p>
+      <div class="store-mode" role="radiogroup" aria-label="入力方法">
+        <label>
+          <input type="radio" name="store-input-mode" value="select" checked />
+          <span>選択式</span>
+        </label>
+        <label>
+          <input type="radio" name="store-input-mode" value="manual" />
+          <span>手動入力</span>
+        </label>
+      </div>
+      <div class="store-fields" id="store-fields-select">
+        <label>
+          店舗名
+          <select id="select-store-pick" aria-describedby="store-select-hint">
+            <option value="">店舗を選択</option>
+          </select>
+        </label>
+        <label>
+          アカウントID（店頭表示）
+          <input id="select-store-id-display" type="text" readonly tabindex="-1" aria-readonly="true" />
+        </label>
+        <p class="hint" id="store-select-hint">店舗名を選ぶと、アカウントIDが自動で入ります。</p>
+      </div>
+      <div class="store-fields" id="store-fields-manual" hidden>
+        <label>
+          店舗名
+          <input id="input-store-name" name="storeName" type="text" autocomplete="off" />
+        </label>
+        <label>
+          アカウントID
+          <input id="input-store-id" name="storeId" type="text" autocomplete="off" placeholder="kura-854" />
+        </label>
+        <p class="hint">先頭に @ がない場合は自動で付けます。</p>
+      </div>
       <button class="save-store" id="save-store" type="submit">保存</button>
       <button class="reset-store" id="reset-store" type="button">初期値に戻す</button>
     </form>
@@ -720,11 +797,47 @@
     const KEY = "coupon-demo-used";
     const KEY_STORE_NAME = "coupon-demo-store-name";
     const KEY_STORE_ID = "coupon-demo-store-id";
+    const KEY_STORE_INPUT_MODE = "coupon-demo-store-input-mode";
     const KEY_AUTH_SESSION = "coupon-demo-auth";
     const KEY_AUTH_REMEMBER = "coupon-demo-auth-remember";
     const DEFAULT_STORE_NAME = "くら寿司 旭川4条通店";
     const DEFAULT_STORE_ID = "kura-854";
     const LOGIN_PASS = "Qwer1234";
+
+  /** @type {{ group: string, name: string, lineId: string }[]} */
+    const STORE_CATALOG = [
+      { group: "その他", name: "くら寿司 旭川4条通店", lineId: "kura-854" },
+      { group: "名古屋", name: "くら寿司 名古屋本陣店", lineId: "kura-343" },
+      { group: "名古屋", name: "くら寿司 名古屋栄店", lineId: "kura-341" },
+      { group: "名古屋", name: "くら寿司 名古屋新栄店", lineId: "kura-339" },
+      { group: "東京", name: "くら寿司 新宿靖国通り店", lineId: "kura-866" },
+      { group: "東京", name: "くら寿司 西新宿店", lineId: "kura-802" },
+      { group: "東京", name: "くら寿司 高田馬場駅前店", lineId: "kura-809" },
+      { group: "東京", name: "くら寿司 無添蔵新宿店", lineId: "kura-508" },
+      { group: "東京", name: "くら寿司 渋谷駅前店", lineId: "kura-801" },
+      { group: "東京", name: "くら寿司 グローバル旗艦店 原宿", lineId: "kura-818" },
+      { group: "東京", name: "くら寿司 初台店", lineId: "kura-860" },
+      { group: "東京", name: "くら寿司 池袋駅西口店", lineId: "kura-829" },
+      { group: "東京", name: "くら寿司 池袋東口店", lineId: "kura-740" },
+      { group: "東京", name: "くら寿司 池袋サンシャイン60通り店", lineId: "kura-762" },
+      { group: "東京", name: "くら寿司 グローバル旗艦店 銀座", lineId: "kura-853" },
+      { group: "東京", name: "くら寿司 品川駅前店", lineId: "kura-624" },
+      { group: "東京", name: "くら寿司 フレスポ東日暮里店", lineId: "kura-789" },
+      { group: "東京", name: "くら寿司 御徒町店", lineId: "kura-863" },
+      { group: "東京", name: "くら寿司 グローバル旗艦店 浅草ROX", lineId: "cpp3346z" },
+      { group: "大阪", name: "くら寿司 グローバル旗艦店 道頓堀", lineId: "kura-340" },
+      { group: "大阪", name: "くら寿司 メモリアル店 なんば千日前", lineId: "kura-368" },
+      { group: "大阪", name: "くら寿司 なんば日本橋店", lineId: "kura-335" },
+      { group: "大阪", name: "くら寿司 グローバル旗艦店 なんばパークスサウス", lineId: "kura-359" },
+      { group: "大阪", name: "くら寿司 なんば元町店", lineId: "kura-257" },
+      { group: "大阪", name: "くら寿司 新世界通天閣店", lineId: "kura-325" },
+      { group: "大阪", name: "くら寿司 梅田OSビル店", lineId: "kura-347" },
+      { group: "大阪", name: "くら寿司 天六駅前店", lineId: "kura-288" },
+      { group: "群馬", name: "くら寿司 高崎店", lineId: "kura-713" },
+      { group: "群馬", name: "くら寿司 前橋小相木店", lineId: "kura-704" },
+      { group: "群馬", name: "くら寿司 伊勢崎店", lineId: "kura-665" },
+      { group: "群馬", name: "くら寿司 前橋荒牧店", lineId: "kura-699" },
+    ];
 
     const useBtn = document.getElementById("use");
     const useLabel = document.getElementById("use-label");
@@ -737,6 +850,11 @@
     const stockEl = document.getElementById("stock");
     const inputStoreName = document.getElementById("input-store-name");
     const inputStoreId = document.getElementById("input-store-id");
+    const selectStorePick = document.getElementById("select-store-pick");
+    const selectStoreIdDisplay = document.getElementById("select-store-id-display");
+    const storeFieldsSelect = document.getElementById("store-fields-select");
+    const storeFieldsManual = document.getElementById("store-fields-manual");
+    const storeModeRadios = document.querySelectorAll('input[name="store-input-mode"]');
     const loginGate = document.getElementById("login-gate");
     const loginForm = document.getElementById("login-form");
     const loginPass = document.getElementById("login-pass");
@@ -844,9 +962,80 @@
       toastTimer = setTimeout(() => toast.classList.remove("show"), 1600);
     }
 
+    function normalizeStoreId(raw) {
+      return (raw || "").trim().replace(/^@+/, "");
+    }
+
     function formatStoreId(raw) {
-      const v = (raw || "").trim().replace(/^@+/, "");
-      return v ? `@${v}` : DEFAULT_STORE_ID;
+      const v = normalizeStoreId(raw);
+      return v ? `@${v}` : `@${DEFAULT_STORE_ID}`;
+    }
+
+    function findCatalogEntry(name, id) {
+      const normId = normalizeStoreId(id);
+      if (normId) {
+        const byId = STORE_CATALOG.find((s) => s.lineId === normId);
+        if (byId) return byId;
+      }
+      const normName = (name || "").trim();
+      if (!normName) return null;
+      const byName = STORE_CATALOG.find((s) => s.name === normName);
+      if (byName) return byName;
+      return (
+        STORE_CATALOG.find((s) => normName.includes(s.name.replace(/^くら寿司\s*/, ""))) || null
+      );
+    }
+
+    function buildStorePicker() {
+      if (!selectStorePick || selectStorePick.options.length > 1) return;
+      const groups = new Map();
+      STORE_CATALOG.forEach((entry) => {
+        if (!groups.has(entry.group)) groups.set(entry.group, []);
+        groups.get(entry.group).push(entry);
+      });
+      groups.forEach((entries, group) => {
+        const og = document.createElement("optgroup");
+        og.label = group;
+        entries.forEach((entry) => {
+          const opt = document.createElement("option");
+          opt.value = entry.lineId;
+          opt.textContent = entry.name.replace(/^くら寿司\s*/, "");
+          opt.dataset.fullName = entry.name;
+          og.appendChild(opt);
+        });
+        selectStorePick.appendChild(og);
+      });
+    }
+
+    function getStoreInputMode() {
+      const saved = localStorage.getItem(KEY_STORE_INPUT_MODE);
+      return saved === "manual" ? "manual" : "select";
+    }
+
+    function setStoreInputMode(mode, persist) {
+      const isManual = mode === "manual";
+      storeFieldsSelect.hidden = isManual;
+      storeFieldsManual.hidden = !isManual;
+      storeModeRadios.forEach((el) => {
+        el.checked = el.value === mode;
+      });
+      if (persist) localStorage.setItem(KEY_STORE_INPUT_MODE, isManual ? "manual" : "select");
+    }
+
+    function syncSelectIdFromPicker() {
+      const lineId = selectStorePick.value;
+      const entry = STORE_CATALOG.find((s) => s.lineId === lineId);
+      selectStoreIdDisplay.value = entry ? formatStoreId(entry.lineId) : "";
+    }
+
+    function setStorePickerSelection(name, id) {
+      const entry = findCatalogEntry(name, id);
+      if (entry) {
+        selectStorePick.value = entry.lineId;
+      } else {
+        selectStorePick.value = "";
+      }
+      syncSelectIdFromPicker();
     }
 
     function renderStore(name, id) {
@@ -863,18 +1052,39 @@
 
     function openStoreEditor() {
       if (busy || activeDialog) return;
+      buildStorePicker();
       const current = loadStoreFromStorage();
       inputStoreName.value = current.name;
-      inputStoreId.value = current.id;
+      inputStoreId.value = normalizeStoreId(current.id) || DEFAULT_STORE_ID;
+      const entry = findCatalogEntry(current.name, current.id);
+      let mode = getStoreInputMode();
+      if (mode === "select" && !entry) mode = "manual";
+      setStoreInputMode(mode, false);
+      setStorePickerSelection(current.name, current.id);
       openDialog(storeSheet);
     }
 
     function saveStore(name, id) {
       const safeName = (name || "").trim() || DEFAULT_STORE_NAME;
-      const safeId = formatStoreId(id);
+      const safeId = normalizeStoreId(id) || DEFAULT_STORE_ID;
       localStorage.setItem(KEY_STORE_NAME, safeName);
-      localStorage.setItem(KEY_STORE_ID, safeId.replace(/^@/, ""));
+      localStorage.setItem(KEY_STORE_ID, safeId);
       renderStore(safeName, safeId);
+    }
+
+    function readStoreFormValues() {
+      const mode = document.querySelector('input[name="store-input-mode"]:checked')?.value;
+      if (mode === "select") {
+        const lineId = selectStorePick.value;
+        if (!lineId) return null;
+        const entry = STORE_CATALOG.find((s) => s.lineId === lineId);
+        if (!entry) return null;
+        return { name: entry.name, id: entry.lineId };
+      }
+      return {
+        name: inputStoreName.value,
+        id: inputStoreId.value,
+      };
     }
 
     function openDialog(dialogEl) {
@@ -943,9 +1153,34 @@
       stockLastTap = now;
     });
 
+    selectStorePick.addEventListener("change", syncSelectIdFromPicker);
+
+    storeModeRadios.forEach((radio) => {
+      radio.addEventListener("change", () => {
+        if (!radio.checked) return;
+        const toManual = radio.value === "manual";
+        if (toManual) {
+          const lineId = selectStorePick.value;
+          const entry = lineId ? STORE_CATALOG.find((s) => s.lineId === lineId) : null;
+          if (entry) {
+            inputStoreName.value = entry.name;
+            inputStoreId.value = entry.lineId;
+          }
+        } else {
+          setStorePickerSelection(inputStoreName.value, inputStoreId.value);
+        }
+        setStoreInputMode(radio.value, true);
+      });
+    });
+
     document.getElementById("store-form").addEventListener("submit", (e) => {
       e.preventDefault();
-      saveStore(inputStoreName.value, inputStoreId.value);
+      const values = readStoreFormValues();
+      if (!values) {
+        showToast("店舗を選択してください");
+        return;
+      }
+      saveStore(values.name, values.id);
       closeDialog();
       showToast("店舗情報を保存しました");
     });
@@ -953,8 +1188,11 @@
     document.getElementById("reset-store").addEventListener("click", () => {
       localStorage.removeItem(KEY_STORE_NAME);
       localStorage.removeItem(KEY_STORE_ID);
+      localStorage.removeItem(KEY_STORE_INPUT_MODE);
       inputStoreName.value = DEFAULT_STORE_NAME;
       inputStoreId.value = DEFAULT_STORE_ID;
+      setStoreInputMode("select", true);
+      setStorePickerSelection(DEFAULT_STORE_NAME, DEFAULT_STORE_ID);
       renderStore(DEFAULT_STORE_NAME, DEFAULT_STORE_ID);
       showToast("初期値に戻しました");
     });

@@ -1,4 +1,4 @@
-const CACHE = "coupon-demo-v3";
+const CACHE = "coupon-demo-v4";
 const ASSETS = [
   "./",
   "./index.html",
